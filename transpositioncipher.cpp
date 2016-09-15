@@ -7,25 +7,23 @@
 
 #include "transpositioncipher.h"
 
-transpositioncipher::transpositioncipher(std::string KeySecret) {
+transpositioncipher::transpositioncipher(const std::string& KeySecret) {
 //	log("Constructor");
+
 	mKeySecret = removeDuplicates(KeySecret);
-	createOrder();
-	for (int i = 97; i < 123; ++i) {
-		char c = (char) i;
-		std::size_t found = mKeySecret.find(c);
-		if (found != std::string::npos) {
-			mapOriginAlphabet[c] = false;
-		} else {
-			mapOriginAlphabet[c] = true;
-		}
-	}
-	createSubstitution();
+//	for (char c = 'a'; c <= 'z'; ++c) {
+//		mapOriginAlphabet[c] = mKeySecret.find(c) == std::string::npos;
+//		std::size_t found = mKeySecret.find(c);
+//		if (found != std::string::npos) {
+//			mapOriginAlphabet[c] = false;
+//		} else {
+//			mapOriginAlphabet[c] = true;
+//		}
+//	}
+	createSubstitution(mKeySecret);
 	reverseSubstitution();
 }
 
-transpositioncipher::~transpositioncipher() {
-}
 
 //source from
 //http://codereview.stackexchange.com/questions/126756/removing-duplicate-characters-from-a-string
@@ -51,13 +49,9 @@ std::string transpositioncipher::removeDuplicates(const std::string strOrigin) {
 }
 
 
-void transpositioncipher::print() {
-
-}
-
 //source from
 //http://codereview.stackexchange.com/questions/126756/removing-duplicate-characters-from-a-string
-void transpositioncipher::createOrder() {
+void transpositioncipher::createOrder(std::vector<int>& vecOrder) {
 //	log("createOrder");
 	std::set<char> chars { mKeySecret.begin(), mKeySecret.end() };
 
@@ -72,11 +66,20 @@ void transpositioncipher::createOrder() {
 }
 
 
-void transpositioncipher::createSubstitution() {
+void transpositioncipher::createSubstitution(std::string strKeySecret) {
 //	log("createSubstitution");
 
+	std::vector<int> vecOrder;
+	createOrder(vecOrder);
+
+	std::map<char,bool> mapOriginAlphabet;
+	for (char c = 'a'; c <= 'z'; ++c) {
+			mapOriginAlphabet[c] = mKeySecret.find(c) == std::string::npos;
+	}
 	int iCols = mKeySecret.length();
-	int iRows = 26 / iCols + 1;
+	int iRows = ALPHABET_SIZE / iCols + 1;
+
+
 
 	std::vector<std::vector<char>> vecTemp;
 
@@ -86,43 +89,52 @@ void transpositioncipher::createSubstitution() {
 	}
 	vecTemp.push_back(vecFirstRow);
 
-	int index = 97;
+//	int index = 97;
 	int iNumRow = 0;
+	char c = 'a';
 
 	while (iNumRow < iRows) {
 		std::vector<char> row;
 		int iNumCol = 0;
 		while (iNumCol < iCols) {
-			if (mapOriginAlphabet[(char) index]) {
-				row.push_back((char) index);
+			if (mapOriginAlphabet[c]) {
+				row.push_back(c);
 				iNumCol++;
 			}
-			index++;
-			if (index > 123) {
+//			index++;
+			c++;
+//			if (index > 123) {
+//				break;
+//			}
+			if (c > 'z')
 				break;
-			}
 		}
 		vecTemp.push_back(row);
 		iNumRow++;
 	}
 
-	index = 97;
+	c = 'a';
+//	index = 97;
 	for (auto& indexCol: vecOrder) {
 		for (auto& vec: vecTemp) {
-			if (indexCol >= vec.size())
-				continue;
-			else {
-				mapAlphabet[(char)index] = vec.at(indexCol);
-				index ++;
+			if (indexCol < vec.size()){
+				mapAlphabet[c] = vec.at(indexCol);
+				c++;
+//				mapAlphabet[(char)index] = vec.at(indexCol);
+//				index ++;
 			}
 		}
 	}
 }
 
-std::string transpositioncipher::encrypt(const std::string strOrigin) {
+std::string transpositioncipher::encrypt(const std::string& strOrigin) {
 	std::string ret;
 	for (auto& x: strOrigin) {
-		ret += mapAlphabet[x];
+		try {
+			ret += mapAlphabet[x];
+		} catch(std::exception &e) {
+			std::cout << e.what() << std::endl;
+		}
 	}
 
 	return ret;
@@ -134,10 +146,14 @@ void transpositioncipher::reverseSubstitution() {
 	}
 }
 
-std::string transpositioncipher::decrypt(const std::string strOrigin) {
+std::string transpositioncipher::decrypt(const std::string& strOrigin) {
 	std::string ret;
 	for (auto& x: strOrigin) {
+		try {
 			ret += mapReverseAlphabet[x];
+		} catch (std::exception &e) {
+			std::cout << e.what() << std::endl;
+		}
 		}
 	return ret;
 }

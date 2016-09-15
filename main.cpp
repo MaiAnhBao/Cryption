@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <chrono> // clock functions
 ////#include <fstream>
 ////#include <string>
 //#include <stdio.h>
@@ -933,18 +934,19 @@
 
 #include "transpositioncipher.h"
 int main(int argc, char **argv) {
-	for (int i = 0; i < 10; i+= 2) {
-		std::cout << i << " ";
-	}
+	auto startTime = std::chrono::high_resolution_clock::now();
 	if (argc != 3) {
 		std::cout << "usage: need two arguments" << std::endl;
 	} else {
 		std::string data = argv[2];
 		std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 		transpositioncipher tc(argv[1]);
-		std::cout << tc.encrypt(data);
-		std::cout << tc.decrypt(data);
+		std::cout << tc.encrypt(data) << std::endl;
+		std::cout << tc.decrypt(data) << std::endl;
 	}
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto total = std::chrono::duration_cast<chrono::milliseconds>(endTime-startTime);
+	std::cout << "Time is:" << total.count() << std::endl;
 	return 0;
 }
 

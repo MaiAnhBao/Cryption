@@ -15,26 +15,27 @@
 #include <set>
 
 #define log(s) std::cout << s << std::endl
+#define NUMBER_ALPHABET 26
 
 class transpositioncipher {
 private:
-	std::map<char,bool> mapOriginAlphabet;
+	constexpr int ALPHABET_SIZE = 26;
+
 	std::map<char,char> mapAlphabet;
 	std::map<char,char> mapReverseAlphabet;
-	std::vector<int> vecOrder;
 	std::string mKeySecret;
 
 	std::string removeDuplicates(const std::string strOrigin);
-	void createOrder();
-	void createSubstitution();
+	void createOrder(std::vector<int>&);
+	void createSubstitution(std::string);
 	void reverseSubstitution();
 
 public:
-	transpositioncipher(std::string KeySecret);
-	virtual ~transpositioncipher();
+	transpositioncipher(const std::string& KeySecret);
+	virtual ~transpositioncipher() = default;
 
-	std::string encrypt(const std::string strOrigin);
-	std::string decrypt(const std::string strOrigin);
+	std::string encrypt(const std::string& strOrigin);
+	std::string decrypt(const std::string& strOrigin);
 	void print();
 };
 
