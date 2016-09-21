@@ -19,7 +19,7 @@
 
 class transpositioncipher {
 private:
-	constexpr int ALPHABET_SIZE = 26;
+	static constexpr int ALPHABET_SIZE = 26;
 
 	std::map<char,char> mapAlphabet;
 	std::map<char,char> mapReverseAlphabet;
